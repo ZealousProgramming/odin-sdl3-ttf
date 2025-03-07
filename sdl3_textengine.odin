@@ -1,7 +1,6 @@
-package sdl3
+package sdl3_ttf
 
 import "core:c"
-import sdl "vendor:sdl3"
 
 // ENUM
 // ----------
@@ -11,37 +10,37 @@ DrawCommand :: enum(c.int) {
 	COPY,
 }
 
-// UNIONS
-// ----------
-DrawOperation :: union {
-	cmd: DrawCommand,
-	fill: FillOperation,
-	copy: CopyOperation,
-}
-
 // STRUCTS
 // ----------
 FillOperation :: struct {
 	cmd: DrawCommand,
-	rect: sdl.Rect,
+	rect: Rect,
 }
 
 CopyOperation :: struct {
 	cmd: DrawCommand,
 	text_offset: c.int,
-	// glyph_font: [^]Font,
-	glyph_index: c.uint,
+	glyph_font: [^]Font,
+	glyph_index: Uint32,
 	src: Rect,
 	dst: Rect,
 	reserved: rawptr,
 }
 
+DrawOperation :: struct #raw_union {
+	cmd: DrawCommand,
+	fill: FillOperation,
+	copy: CopyOperation,
+}
+
+TextLayout :: struct {}
+
 TextData :: struct {
-	// font: ^Font,
-	color: sdl.FColor,
+	font: ^Font,
+	color: Color,
 
 	needs_layout_update: bool,
-	// layout: ^TextLayout,
+	layout: ^TextLayout,
 	x: c.int,
 	y: c.int,
 	w: c.int,
@@ -49,9 +48,9 @@ TextData :: struct {
 	num_ops: c.int,
 	ops: [^]DrawOperation,
 	num_clusters: c.int,
-	// clusters: [^]SubString,
+	clusters: [^]SubString,
 
-	props: sdl.PropertiesID,
+	props: PropertiesID,
 
 	needs_engine_update: bool,
 	engine: ^TextEngine,
@@ -59,15 +58,15 @@ TextData :: struct {
 }
 
 TextEngine :: struct {
-	version: c.uint,
+	version: Uint32,
 	userdata: rawptr,
 
-	create_text :: proc "c" (userdata: rawptr, text: ^Text)
-	destroy_text :: proc "c" (userdata: rawptr, text: ^Text)
+	create_text: proc "c" (userdata: rawptr, text: ^Text),
+	destroy_text: proc "c" (userdata: rawptr, text: ^Text),
 }
 
 #assert(
         (size_of(TextEngine) == 16 && size_of(rawptr) == 4) ||
-        (size_of(TextEngine) == 322 && size_of(rawptr) == 8),
+        (size_of(TextEngine) == 32 && size_of(rawptr) == 8),
 )
 

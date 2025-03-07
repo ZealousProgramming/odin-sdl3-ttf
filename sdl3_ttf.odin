@@ -1,12 +1,25 @@
-package sdl3
+package sdl3_ttf
 
 import "core:c"
+import sdl "vendor:sdl3"
 
 when ODIN_OS == .Windows {
-	@(export) foreign import lib { "SDL3_tff.lib" }
+	@(export) foreign import lib { "SDL3_ttf.lib" }
 } else {
-	@(export) foreign import lib { "system:SDL3_tff" }
+	@(export) foreign import lib { "system:SDL3_ttf" }
 }
+
+Uint32 :: sdl.Uint32
+Uint8 :: sdl.Uint8
+Rect :: sdl.Rect
+FPoint :: sdl.FPoint
+Color :: sdl.Color
+GPUTexture :: sdl.GPUTexture
+GPUDevice :: sdl.GPUDevice
+IOStream :: sdl.IOStream
+PropertiesID :: sdl.PropertiesID
+Surface :: sdl.Surface
+Renderer :: sdl.Renderer
 
 // CONSTANTS
 // ----------
@@ -35,8 +48,8 @@ PROP_GPU_TEXT_ENGINE_ATLAS_TEXTURE_SIZE       		:: "SDL_ttf.gpu_text_engine.crea
 // STRUCTS
 // ----------
 Font :: struct {} //Opaque data
-TextEngine :: struct {}
-TextData :: struct {}
+// TextEngine :: struct {}
+// TextData :: struct {}
 
 Text :: struct {
     text: cstring,          /**< A copy of the UTF-8 string that this text object represents, useful for layout, debugging and retrieving substring text. This is updated when the text object is modified and will be freed automatically when the object is destroyed. */
@@ -44,13 +57,13 @@ Text :: struct {
 
     refcount: c.int,        /**< Application reference count, used when freeing surface */
 
-    internal: ^TextData; 	/**< Private */
+    internal: ^TextData, 	/**< Private */
 }
 
 GPUAtlasDrawSequence :: struct {
-	atlas_texture: ^sdl.GPUTexture,         /**< Texture atlas that stores the glyphs */
-    xy: ^sdl.FPoint,                        /**< An array of vertex positions */
-    uv: ^sdl.FPoint,                        /**< An array of normalized texture coordinates for each vertex */
+	atlas_texture: ^GPUTexture,         /**< Texture atlas that stores the glyphs */
+    xy: ^FPoint,                        /**< An array of vertex positions */
+    uv: ^FPoint,                        /**< An array of normalized texture coordinates for each vertex */
     num_vertices: c.int,                    /**< Number of vertices */
     indices: [^]c.int,                      /**< An array of indices into the 'vertices' arrays */
     num_indices: c.int,                     /**< Number of indices */
@@ -65,28 +78,18 @@ SubString :: struct {
     length: c.int,                 	/**< The byte length starting at the offset */
     line_index: c.int,             	/**< The index of the line that contains this substring */
     cluster_index: c.int,          	/**< The internal cluster index, used for quickly iterating */
-    rect: sdl.Rect,              	/**< The rectangle, relative to the top left of the text, containing the substring */
+    rect: Rect,              	/**< The rectangle, relative to the top left of the text, containing the substring */
 }
-
-typedef struct TTF_SubString
-{
-    TTF_SubStringFlags flags;   /**< The flags for this substring */
-    int offset;                 /**< The byte offset from the beginning of the text */
-    int length;                 /**< The byte length starting at the offset */
-    int line_index;             /**< The index of the line that contains this substring */
-    int cluster_index;          /**< The internal cluster index, used for quickly iterating */
-    SDL_Rect rect;              /**< The rectangle, relative to the top left of the text, containing the substring */
-} TTF_SubString;
 
 // ENUMS
 // ----------
-FontStyleFlags :: distinct bit_set[FontStyleFlag; enum Uint32]
+FontStyleFlags :: distinct bit_set[FontStyleFlag; Uint32]
 FontStyleFlag :: enum Uint32 {
-	NORMAL        = 0 /**< No special style */
-	BOLD          = 1 /**< Bold style */
-	ITALIC        = 2 /**< Italic style */
-	UNDERLINE     = 3 /**< Underlined text */
-	STRIKETHROUGH = 4 /**< Strikethrough text */
+	NORMAL        = 0, /**< No special style */
+	BOLD          = 1, /**< Bold style */
+	ITALIC        = 2, /**< Italic style */
+	UNDERLINE     = 3, /**< Underlined text */
+	STRIKETHROUGH = 4, /**< Strikethrough text */
 }
 
 HintingFlags :: enum c.int {
@@ -94,7 +97,7 @@ HintingFlags :: enum c.int {
 	LIGHT,          /**< Light hinting applies subtle adjustments to improve rendering. */
 	MONO,           /**< Monochrome hinting adjusts the font for better rendering at lower resolutions. */
 	NONE,           /**< No hinting, the font is rendered without any grid-fitting. */
-	LIGHT_SUBPIXEL  /**< Light hinting with subpixel rendering for more precise font edges. */
+	LIGHT_SUBPIXEL, /**< Light hinting with subpixel rendering for more precise font edges. */
 }
 
 HorizontalAlignment :: enum c.int {
@@ -109,7 +112,7 @@ Direction :: enum c.int {
 	LTR = 4,        /**< Left to Right */
 	RTL,            /**< Right to Left */
 	TTB,            /**< Top to Bottom */
-	BTT             /**< Bottom to Top */
+	BTT,            /**< Bottom to Top */
 }
 
 ImageType :: enum c.int {
@@ -125,13 +128,19 @@ GPUTextEngineWinding :: enum c.int {
 	COUNTER_CLOCKWISE,
 }
 
-SubStringFlags :: distinct bit_set[SubStringsFlag; enum Uint32]
+SubStringFlags :: distinct bit_set[SubStringFlag; Uint32]
 SubStringFlag :: enum Uint32 {
-	DIRECTION_MASK    = 0x000000FF,  /**< The mask for the flow direction for this substring */
-	TEXT_START        = 0x00000100,  /**< This substring contains the beginning of the text */
-	LINE_START        = 0x00000200,  /**< This substring contains the beginning of line `line_index` */
-	LINE_END          = 0x00000400,  /**< This substring contains the end of line `line_index` */
-	TEXT_END          = 0x00000800,  /**< This substring contains the end of the text */
+	// 0x000000FF,   
+	// 0x00000100,  
+	// 0x00000200, 
+	// 0x00000400,  
+	// 0x00000800,  
+	// TODO(devon): I feel like these are wrong as hell
+	DIRECTION_MASK    = 0 << 0xFF,  /**< The mask for the flow direction for this substring */
+	TEXT_START        = 1,  /**< This substring contains the beginning of the text */
+	LINE_START        = 2,  /**< This substring contains the beginning of line `line_index` */
+	LINE_END          = 4,  /**< This substring contains the end of line `line_index` */
+	TEXT_END          = 8,  /**< This substring contains the end of the text */
 }
 
 
@@ -145,20 +154,20 @@ foreign lib {
 
 	Init :: proc() -> bool --- 
 	OpenFont :: proc(file: cstring, ptsize: c.float) -> ^Font ---
-	OpenFontIO :: proc(src: ^sdl.IOStream, closeio: bool, ptsize: c.float) -> ^Font ---
-	OpenFontWithProperties :: proc(props: sdl.PropertiesID) -> ^Font ---
+	OpenFontIO :: proc(src: ^IOStream, closeio: bool, ptsize: c.float) -> ^Font ---
+	OpenFontWithProperties :: proc(props: PropertiesID) -> ^Font ---
 
 	CopyFont :: proc(existing_font: ^Font) -> ^Font ---
-	GetFontProperties :: proc(font: ^Font) -> sdl.PropertiesID ---
+	GetFontProperties :: proc(font: ^Font) -> PropertiesID ---
 
-	GetFontGeneration :: proc(font: ^Font) -> c.uint ---
+	GetFontGeneration :: proc(font: ^Font) -> Uint32 ---
 	AddFallbackFont :: proc(font: ^Font, fallback: ^Font) -> bool ---
 	RemoveFallbackFont :: proc(font: ^Font, fallback: ^Font) ---
 	ClearFallbackFonts :: proc(font: ^Font) ---
 	SetFontSize :: proc(font: ^Font, ptsize: c.float) -> bool ---
 	SetFontSizeDPI :: proc(font: ^Font, ptsize: c.float, hdpi: c.int, vdpi: c.int) -> bool ---
 	GetFontSize :: proc(font: ^Font) -> c.float ---
-	GetFontDPI :: proc(font: ^Font, hdpi: ^c.int, vdpi: ^c.int) bool ---
+	GetFontDPI :: proc(font: ^Font, hdpi: ^c.int, vdpi: ^c.int) -> bool ---
 
 	SetFontStyle :: proc(font: ^Font, style: FontStyleFlags) ---
 	GetFontStyle :: proc(font: ^Font) -> FontStyleFlags ---
@@ -187,63 +196,63 @@ foreign lib {
 
 	SetFontDirection :: proc(font: ^Font, direction: Direction) -> bool ---
 	GetFontDirection :: proc(font: ^Font) -> Direction ---
-	StringToTag :: proc(str: cstring) -> c.uint ---
-	TagToString :: proc(tag: c.uint, str: cstring, size: c.size_t) ---
-	SetFontScript :: proc(font: ^Font, script: c.uint) -> bool ---
-	GetFontScript :: proc(font: ^Font) -> c.uint ---
-	GetGlyphScript :: proc(ch: c.uint) -> c.uint ---
+	StringToTag :: proc(str: cstring) -> Uint32 ---
+	TagToString :: proc(tag: Uint32, str: cstring, size: c.size_t) ---
+	SetFontScript :: proc(font: ^Font, script: Uint32) -> bool ---
+	GetFontScript :: proc(font: ^Font) -> Uint32 ---
+	GetGlyphScript :: proc(ch: Uint32) -> Uint32 ---
 	SetFontLanguage :: proc(font: ^Font, language_bcp47: cstring) -> bool ---
-	HasGlyph :: proc(font: ^Font, ch: c.uint) -> bool ---
-	GetGlyphImage :: proc(font: ^Font, ch: c.uint, image_type: ^ImageType) -> ^sdl.Surface ---
-	GetGlyphImageForIndex :: proc(font: ^Font, glyph_index: c.uint, image_type: ^ImageType) -> ^sdl.Surface ---
-	GetGlyphMetrics :: proc(font: ^Font, ch: c.uint, minx: ^c.int, maxx: ^c.int, miny: ^c.int, maxy: ^c.int, advance: ^c.int) -> bool ---
-	GetGlyphKerning :: proc(font: ^Font, previous_ch: c.int, ch: c.int, kerning: ^c.int) -> bool ---
-	GetStringSize :: proc(font: ^Font, text: cstring, length: c.size_t, w: ^c.int, h: ^x.int) -> bool ---
+	HasGlyph :: proc(font: ^Font, ch: Uint32) -> bool ---
+	GetGlyphImage :: proc(font: ^Font, ch: Uint32, image_type: ^ImageType) -> ^Surface ---
+	GetGlyphImageForIndex :: proc(font: ^Font, glyph_index: Uint32, image_type: ^ImageType) -> ^Surface ---
+	GetGlyphMetrics :: proc(font: ^Font, ch: Uint32, minx: ^c.int, maxx: ^c.int, miny: ^c.int, maxy: ^c.int, advance: ^c.int) -> bool ---
+	GetGlyphKerning :: proc(font: ^Font, previous_ch: Uint32, ch: Uint32, kerning: ^c.int) -> bool ---
+	GetStringSize :: proc(font: ^Font, text: cstring, length: c.size_t, w: ^c.int, h: ^c.int) -> bool ---
 	GetStringSizeWrapped :: proc(font: ^Font, text: cstring, length: c.size_t, wrap_width: c.int, w: ^c.int, h: ^c.int) -> bool ---
 	MeasureString :: proc(font: ^Font, text: cstring, length: c.size_t, max_width: c.int, measured_width: ^c.int, measured_length: ^c.size_t) -> bool ---
-	RenderText_Solid :: proc(font: ^Font, text: cstring, length: c.size_t, fg: sdl.FColor) -> ^sdl.Surface ---
-	RenderText_Solid_Wrapped :: proc(font: ^Font, text: cstring, length: c.size_t, fg: sdl.FColor, wrap_length: c.int) -> ^sdl.Surface ---
-	RenderGlyph_Solid :: proc(font: ^Font, ch: c.uint, fg: sdl.FColor) -> ^sdl.Surface ---
-	RenderText_Shaded :: proc(font: ^Font, text: cstring, length: c.size_t, fg: sdl.FColor, bg: sdl.FColor) -> ^sdl.Surface ---
-	RenderText_Shaded_Wrapped :: proc(font: ^Font, text: cstring, length: c.size_t, fg: sdl.FColor, bg: sdl.FColor, wrap_width: c.int) -> ^sdl.Surface ---
-	RenderGlyph_Shaded :: proc(font: ^Font, ch: c.uint, fg: sdl.FColor, bg: sdl.FColor) -> ^sdl.Surface ---
-	RenderText_Blended :: proc(font: ^Font, text: cstring, length: c.size_t, fg: sdl.FColor) -> ^sdl.Surface ---
-	RenderText_Blended_Wrapped :: proc(font: ^Font, text: cstring, length: c.size_t, fg: sdl.FColor, wrap_width: c.int) -> ^sdl.Surface ---
-	RenderGlyph_Blended :: proc(font: ^Font, ch: c.uint, fg: sdl.FColor) -> ^sdl.Surface ---
-	RenderText_LCD :: proc(font: ^Font, text: cstring, length: c.size_t, fg: sdl.FColor, bg: sdl.FColor) -> ^sdl.Surface ---
-	RenderText_LCD_Wrapped :: proc(font: ^Font, text: cstring, length: c.size_t, fg: sdl.FColor, bg: sdl.FColor, wrap_width: c.int) -> ^sdl.Surface ---
-	RenderGlyph_LCD :: proc(font: ^Font, ch: c.uint, fg: sdl.FColor, bg: sdl.FColor) -> ^sdl.Surface ---
+	RenderText_Solid :: proc(font: ^Font, text: cstring, length: c.size_t, fg: Color) -> ^Surface ---
+	RenderText_Solid_Wrapped :: proc(font: ^Font, text: cstring, length: c.size_t, fg: Color, wrap_length: c.int) -> ^Surface ---
+	RenderGlyph_Solid :: proc(font: ^Font, ch: Uint32, fg: Color) -> ^Surface ---
+	RenderText_Shaded :: proc(font: ^Font, text: cstring, length: c.size_t, fg: Color, bg: Color) -> ^Surface ---
+	RenderText_Shaded_Wrapped :: proc(font: ^Font, text: cstring, length: c.size_t, fg: Color, bg: Color, wrap_width: c.int) -> ^Surface ---
+	RenderGlyph_Shaded :: proc(font: ^Font, ch: Uint32, fg: Color, bg: Color) -> ^Surface ---
+	RenderText_Blended :: proc(font: ^Font, text: cstring, length: c.size_t, fg: Color) -> ^Surface ---
+	RenderText_Blended_Wrapped :: proc(font: ^Font, text: cstring, length: c.size_t, fg: Color, wrap_width: c.int) -> ^Surface ---
+	RenderGlyph_Blended :: proc(font: ^Font, ch: Uint32, fg: Color) -> ^Surface ---
+	RenderText_LCD :: proc(font: ^Font, text: cstring, length: c.size_t, fg: Color, bg: Color) -> ^Surface ---
+	RenderText_LCD_Wrapped :: proc(font: ^Font, text: cstring, length: c.size_t, fg: Color, bg: Color, wrap_width: c.int) -> ^Surface ---
+	RenderGlyph_LCD :: proc(font: ^Font, ch: Uint32, fg: Color, bg: Color) -> ^Surface ---
 
 	CreateSurfaceTextEngine :: proc() -> ^TextEngine ---
-	DrawSurfaceText :: proc(text: ^Text, x: c.int, y: c.int, surface: ^sdl.Surface) -> bool ---
+	DrawSurfaceText :: proc(text: ^Text, x: c.int, y: c.int, surface: ^Surface) -> bool ---
 	DestroySurfaceTextEngine :: proc(engine: ^TextEngine) ---
 
-	CreateRendererTextEngine :: proc(renderer: ^sdl.Renderer) -> ^TextEngine ---
-	CreateRendererTextEngineWithProperties :: proc(props: sdl.PropertiesID) -> ^TextEngine ---
+	CreateRendererTextEngine :: proc(renderer: ^Renderer) -> ^TextEngine ---
+	CreateRendererTextEngineWithProperties :: proc(props: PropertiesID) -> ^TextEngine ---
 	DrawRendererText :: proc(text: ^Text, x: c.float, y: c.float) -> bool ---
 	DestroyRendererTextEngine :: proc(engine: ^TextEngine) ---
 
-	CreateGPUTextEngine :: proc(device: ^sdl.GPUDevice) -> ^TextEngine ---
-	CreateGPUTextEngineWithProperties :: proc(props: sdl.PropertiesID) -> ^TextEngine ---
+	CreateGPUTextEngine :: proc(device: ^GPUDevice) -> ^TextEngine ---
+	CreateGPUTextEngineWithProperties :: proc(props: PropertiesID) -> ^TextEngine ---
 	GetGPUTextDrawData :: proc(text: ^Text) -> ^GPUAtlasDrawSequence ---
 	DestroyGPUTextEngine :: proc(engine: ^TextEngine) ---
 	SetGPUTextEngineWinding :: proc(engine: ^TextEngine, winding: GPUTextEngineWinding) ---
 	GetGPUTextEngineWinding :: proc(engine: ^TextEngine) -> GPUTextEngineWinding ---
 
 	CreateText :: proc(engine: TextEngine, font: ^Font, text: cstring, length: c.size_t) -> ^Text ---
-	GetTextProperties :: proc(text: ^Text) -> sdl.PropertiesID ---
+	GetTextProperties :: proc(text: ^Text) -> PropertiesID ---
 	SetTextEngine :: proc(text: ^Text, engine: ^TextEngine) -> bool ---
 	GetTextEngine :: proc(text: ^Text) -> ^TextEngine ---
 	SetTextFont :: proc(text: ^Text, font: ^Font) -> bool ---
 	GetTextFont :: proc(text: ^Text) -> ^Font ---
 	SetTextDirection :: proc(text: ^Text, direction: Direction) -> bool ---
 	GetTextDirection :: proc(textu: ^Text) -> Direction ---
-	SetTextScript :: proc(text: ^Text, script: c.uint) -> bool ---
-	GetTextScript :: proc(text: ^Text) -> c.uint ---
-	SetTextColor :: proc(text: ^Text, r: c.Uint8, g: c.Uint8, b: c.Uint8, a: c.Uint8) -> bool ---
+	SetTextScript :: proc(text: ^Text, script: Uint32) -> bool ---
+	GetTextScript :: proc(text: ^Text) -> Uint32 ---
+	SetTextColor :: proc(text: ^Text, r: Uint8, g: Uint8, b: Uint8, a: Uint8) -> bool ---
 	SetTextColorFloat :: proc(text: ^Text, r: c.float, g: c.float, b: c.float, a: c.float) -> bool ---
-	GetTextColor :: proc(text: ^Text, r: ^c.Uint8, ^g: c.Uint8, ^b: c.Uint8, ^a: c.Uint8) -> bool ---
-	GetTextColorFloat :: proc(text: ^Text, r: ^c.float, ^g: c.float, b: ^c.float, a: ^c.float) -> bool ---
+	GetTextColor :: proc(text: ^Text, r: ^Uint8, g: ^Uint8, b: ^Uint8, a: ^Uint8) -> bool ---
+	GetTextColorFloat :: proc(text: ^Text, r: ^c.float, g: ^c.float, b: ^c.float, a: ^c.float) -> bool ---
 	SetTextPosition :: proc(text: ^Text, x: c.int, y: c.int) -> bool ---
 	GetTextPosition :: proc(text: ^Text, x: ^c.int, y: ^c.int) -> bool ---
 	SetTextWrapWidth :: proc(text: ^Text, wrap_width: c.int) -> bool ---
