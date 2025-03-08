@@ -1,4 +1,4 @@
-package main
+package examples
 
 import "core:fmt"
 import "core:strings"
@@ -65,6 +65,12 @@ main :: proc() {
 			case .QUIT: {
 				quit = true
 				continue
+			}
+			case .KEY_DOWN, KEY_UP: {
+				if ev.key.keycode == .ESCAPE {
+					quit = true
+					continue
+				}
 			}
 			}
 		}

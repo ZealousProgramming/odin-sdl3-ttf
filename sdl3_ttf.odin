@@ -62,14 +62,14 @@ Text :: struct {
 
 GPUAtlasDrawSequence :: struct {
 	atlas_texture: ^GPUTexture,         /**< Texture atlas that stores the glyphs */
-    xy: ^FPoint,                        /**< An array of vertex positions */
-    uv: ^FPoint,                        /**< An array of normalized texture coordinates for each vertex */
-    num_vertices: c.int,                    /**< Number of vertices */
-    indices: [^]c.int,                      /**< An array of indices into the 'vertices' arrays */
-    num_indices: c.int,                     /**< Number of indices */
-    image_type: ImageType,               	/**< The image type of this draw sequence */
+    xy: [^]FPoint,                      /**< An array of vertex positions */
+    uv: [^]FPoint,                      /**< An array of normalized texture coordinates for each vertex */
+    num_vertices: c.int,                /**< Number of vertices */
+    indices: [^]c.int,                  /**< An array of indices into the 'vertices' arrays */
+    num_indices: c.int,                 /**< Number of indices */
+    image_type: ImageType,              /**< The image type of this draw sequence */
 
-    next: ^GPUAtlasDrawSequence,  			/**< The next sequence (will be NULL in case of the last sequence) */
+    next: ^GPUAtlasDrawSequence,  		/**< The next sequence (will be NULL in case of the last sequence) */
 }
 
 SubString :: struct {
@@ -239,7 +239,7 @@ foreign lib {
 	SetGPUTextEngineWinding :: proc(engine: ^TextEngine, winding: GPUTextEngineWinding) ---
 	GetGPUTextEngineWinding :: proc(engine: ^TextEngine) -> GPUTextEngineWinding ---
 
-	CreateText :: proc(engine: TextEngine, font: ^Font, text: cstring, length: c.size_t) -> ^Text ---
+	CreateText :: proc(engine: ^TextEngine, font: ^Font, text: cstring, length: c.size_t) -> ^Text ---
 	GetTextProperties :: proc(text: ^Text) -> PropertiesID ---
 	SetTextEngine :: proc(text: ^Text, engine: ^TextEngine) -> bool ---
 	GetTextEngine :: proc(text: ^Text) -> ^TextEngine ---
