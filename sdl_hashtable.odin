@@ -1,9 +1,6 @@
 package sdl3_ttf
 
-import "core:c"
-
 HashTable :: struct {}
-
 
 // PROCEDURES
 // ----------

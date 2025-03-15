@@ -67,10 +67,8 @@ main :: proc() {
 		lperr("ERROR: Failed to create text")
 		return
 	}
-	// defer ttf.DestroyText(message_text)
+	defer ttf.DestroyText(message_text)
 
-	fmt.println(message_text)
-	
 
 	quit := false
 	for !quit {
@@ -120,8 +118,6 @@ main :: proc() {
 					g_font_data.vertices[g_font_data.vertex_count + i] = vert
 				}
 
-				// log.info(g_font_data.vertices)
-				// mem.ptr_offset()
 				mem.copy(mem.ptr_offset(&g_font_data.indices, g_font_data.index_count), seq.indices, size_of(c.int) * int(seq.num_indices))
 
 				g_font_data.vertex_count += seq.num_vertices
@@ -136,7 +132,7 @@ main :: proc() {
 		vbytes: int = size_of(Vertex) * int(g_font_data.vertex_count)
 		ibytes: int = size_of(c.int) * int(g_font_data.index_count)
 		{
-			transfer_mem := transmute([^]byte)sdl.MapGPUTransferBuffer(g_ctx.gpu_device, g_ctx.transfer_buffer, false)
+			transfer_mem := cast([^]byte)sdl.MapGPUTransferBuffer(g_ctx.gpu_device, g_ctx.transfer_buffer, false)
 
 			mem.copy(transfer_mem, raw_data(g_font_data.vertices[:]), vbytes)
 			mem.copy(transfer_mem[vbytes:], raw_data(g_font_data.indices[:]), ibytes)
@@ -342,7 +338,7 @@ init :: proc() -> bool {
 	}
 
 	cw_ok := sdl.ClaimWindowForGPUDevice(gpu_device, window)
-	if gpu_device == nil {
+	if !cw_ok {
 		lperr("ERRROR: Failed to claim window for GPU device")
 		return false
 	}
