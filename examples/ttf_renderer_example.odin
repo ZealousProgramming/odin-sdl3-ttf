@@ -66,8 +66,8 @@ main :: proc() {
 				quit = true
 				continue
 			}
-			case .KEY_DOWN, KEY_UP: {
-				if ev.key.keycode == .ESCAPE {
+			case .KEY_DOWN, .KEY_UP: {
+				if ev.key.scancode == .ESCAPE {
 					quit = true
 					continue
 				}
