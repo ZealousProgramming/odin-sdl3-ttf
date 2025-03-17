@@ -55,7 +55,6 @@ main :: proc() {
 		w = c.float(sdl.GetNumberProperty(message_texture_props, sdl.PROP_TEXTURE_WIDTH_NUMBER, 0)),
 		h = c.float(sdl.GetNumberProperty(message_texture_props, sdl.PROP_TEXTURE_HEIGHT_NUMBER, 0)),
 	}
-	fmt.println(text_rect)
 
 	quit := false
 	for !quit {

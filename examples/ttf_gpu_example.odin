@@ -331,7 +331,7 @@ init :: proc() -> bool {
 		return false
 	}
 
-	gpu_device := sdl.CreateGPUDevice({.SPIRV}, true, nil)
+	gpu_device := sdl.CreateGPUDevice({.SPIRV, .MSL}, true, nil)
 	if gpu_device == nil {
 		lperr("ERRROR: Failed to GPU device")
 		return false
@@ -466,28 +466,52 @@ load_shader :: proc(
 	storage_buffer_count: u32,
 	storage_texture_count: u32,
 ) -> ^sdl.GPUShader {
+
+	shader_format := sdl.GetGPUShaderFormats(gpu_device)
 	create_info := sdl.GPUShaderCreateInfo {
 		num_samplers = sampler_count,
 		num_storage_buffers = storage_buffer_count,
 		num_storage_textures = storage_texture_count,
 		num_uniform_buffers = uniform_buffer_count,
-		format = {.SPIRV},
 	}
 
-	switch(shader_kind) {
-	case .Vertex: {
-		create_info.code = raw_data(gpu_font_vert_bytes)
-		create_info.code_size = len(gpu_font_vert_bytes)
-		create_info.entrypoint = "main"
-		create_info.stage = .VERTEX
+	if .SPIRV in shader_format {
+		create_info.format = {.SPIRV}
 
-	}
-	case .Pixel: {
-		create_info.code = raw_data(gpu_font_frag_bytes)
-		create_info.code_size = len(gpu_font_frag_bytes)
-		create_info.entrypoint = "main"
-		create_info.stage = .FRAGMENT
-	}
+		switch(shader_kind) {
+		case .Vertex: {
+			create_info.code = raw_data(gpu_font_vert_spv)
+			create_info.code_size = len(gpu_font_vert_spv)
+			create_info.entrypoint = "main"
+			create_info.stage = .VERTEX
+
+		}
+		case .Pixel: {
+			create_info.code = raw_data(gpu_font_frag_spv)
+			create_info.code_size = len(gpu_font_frag_spv)
+			create_info.entrypoint = "main"
+			create_info.stage = .FRAGMENT
+		}
+		}
+	} else if .MSL in shader_format {
+		log.info("Loading MSL shader..")
+		create_info.format = {.MSL}
+
+		switch(shader_kind) {
+		case .Vertex: {
+			create_info.code = raw_data(gpu_font_vert_msl)
+			create_info.code_size = len(gpu_font_vert_msl)
+			create_info.entrypoint = "main0"
+			create_info.stage = .VERTEX
+
+		}
+		case .Pixel: {
+			create_info.code = raw_data(gpu_font_frag_msl)
+			create_info.code_size = len(gpu_font_frag_msl)
+			create_info.entrypoint = "main0"
+			create_info.stage = .FRAGMENT
+		}
+		}
 	}
 
 	shader := sdl.CreateGPUShader(gpu_device, create_info)
@@ -611,8 +635,11 @@ g_ctx: Graphics_Context
 g_font: ^ttf.Font
 g_font_data: Geometry_Data
 
-gpu_font_vert_bytes :: #load("../bin/shaders/gpu_font.vert.spv")
-gpu_font_frag_bytes :: #load("../bin/shaders/gpu_font.frag.spv")
+gpu_font_vert_spv :: #load("../bin/shaders/gpu_font.vert.spv")
+gpu_font_frag_spv :: #load("../bin/shaders/gpu_font.frag.spv")
+gpu_font_vert_msl :: #load("../bin/shaders/gpu_font.vert.msl")
+gpu_font_frag_msl :: #load("../bin/shaders/gpu_font.frag.msl")
+ 
  
 MAX_VERTEX_COUNT :: u32(4000)
 MAX_INDEX_COUNT :: u32(6000)
