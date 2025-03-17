@@ -2,4 +2,4 @@
 
 
 TODO:
-- Sweep through and replace `^` with `#by_ptr` when API is expecting `const *`
+- [x] Sweep through and replace `^` with `#by_ptr` when API is expecting `const *`

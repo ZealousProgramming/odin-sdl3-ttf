@@ -3,12 +3,6 @@ package sdl3_ttf
 import "core:c"
 import sdl "vendor:sdl3"
 
-when ODIN_OS == .Windows {
-	@(export) foreign import lib { "SDL3_ttf.lib" }
-} else {
-	@(export) foreign import lib { "system:SDL3_ttf" }
-}
-
 Uint32 :: sdl.Uint32
 Uint8 :: sdl.Uint8
 Rect :: sdl.Rect
@@ -169,40 +163,40 @@ foreign lib {
 	GetFontSize :: proc(font: ^Font) -> c.float ---
 	GetFontDPI :: proc(font: ^Font, hdpi: ^c.int, vdpi: ^c.int) -> bool ---
 
-	SetFontStyle :: proc(font: ^Font, style: FontStyleFlags) ---
-	GetFontStyle :: proc(font: ^Font) -> FontStyleFlags ---
+	SetFontStyle :: proc(#by_ptr font: Font, style: FontStyleFlags) ---
+	GetFontStyle :: proc(#by_ptr font: Font) -> FontStyleFlags ---
 	SetFontOutline :: proc(font: ^Font, outline: c.int) -> bool ---
-	GetFontOutline :: proc(font: ^Font) -> c.int ---
+	GetFontOutline :: proc(#by_ptr font: Font) -> c.int ---
 
 	SetFontHinting :: proc(font: ^Font, hinting: HintingFlags) ---
-	GetNumFontFaces :: proc(font: ^Font) -> c.int ---
-	GetFontHinting :: proc(font: ^Font) -> HintingFlags ---
+	GetNumFontFaces :: proc(#by_ptr font: Font) -> c.int ---
+	GetFontHinting :: proc(#by_ptr font: Font) -> HintingFlags ---
 	SetFontSDF :: proc(font: ^Font, enabled: bool) -> bool ---
-	GetFontSDF :: proc(font: ^Font) -> bool ---
+	GetFontSDF :: proc(#by_ptr font: Font) -> bool ---
 
 	SetFontWrapAlignment :: proc(font: ^Font, align: HorizontalAlignment) ---
-	GetFontWrapAlignment :: proc(font: ^Font) -> HorizontalAlignment ---
-	GetFontHeight :: proc(font: ^Font) -> c.int ---
-	GetFontAscent :: proc(font: ^Font) -> c.int ---
-	GetFontDescent :: proc(font: ^Font) -> c.int ---
+	GetFontWrapAlignment :: proc(#by_ptr font: Font) -> HorizontalAlignment ---
+	GetFontHeight :: proc(#by_ptr font: Font) -> c.int ---
+	GetFontAscent :: proc(#by_ptr font: Font) -> c.int ---
+	GetFontDescent :: proc(#by_ptr font: Font) -> c.int ---
 	SetFontLineSkip :: proc(font: ^Font, lineskip: c.int) ---
-	GetFontLineSkip :: proc(font: ^Font) -> c.int ---
+	GetFontLineSkip :: proc(#by_ptr font: Font) -> c.int ---
 	SetFontKerning :: proc(font: ^Font, enabled: bool) ---
-	GetFontKerning :: proc(font: ^Font) -> bool ---
-	IsFixedWidth :: proc(font: ^Font) -> bool ---
-	IsScalable :: proc(font: ^Font) -> bool ---
-	GetFontFamilyName :: proc(font: ^Font) -> cstring ---
-	GetFontStyleName :: proc(font: ^Font) -> cstring ---
+	GetFontKerning :: proc(#by_ptr font: Font) -> bool ---
+	IsFixedWidth :: proc(#by_ptr font: Font) -> bool ---
+	IsScalable :: proc(#by_ptr font: Font) -> bool ---
+	GetFontFamilyName :: proc(#by_ptr font: Font) -> cstring ---
+	GetFontStyleName :: proc(#by_ptr font: Font) -> cstring ---
 
 	SetFontDirection :: proc(font: ^Font, direction: Direction) -> bool ---
-	GetFontDirection :: proc(font: ^Font) -> Direction ---
+	GetFontDirection :: proc(#by_ptr font: Font) -> Direction ---
 	StringToTag :: proc(str: cstring) -> Uint32 ---
 	TagToString :: proc(tag: Uint32, str: cstring, size: c.size_t) ---
 	SetFontScript :: proc(font: ^Font, script: Uint32) -> bool ---
-	GetFontScript :: proc(font: ^Font) -> Uint32 ---
+	GetFontScript :: proc(#by_ptr font: Font) -> Uint32 ---
 	GetGlyphScript :: proc(ch: Uint32) -> Uint32 ---
 	SetFontLanguage :: proc(font: ^Font, language_bcp47: cstring) -> bool ---
-	HasGlyph :: proc(font: ^Font, ch: Uint32) -> bool ---
+	HasGlyph :: proc(#by_ptr font: Font, ch: Uint32) -> bool ---
 	GetGlyphImage :: proc(font: ^Font, ch: Uint32, image_type: ^ImageType) -> ^Surface ---
 	GetGlyphImageForIndex :: proc(font: ^Font, glyph_index: Uint32, image_type: ^ImageType) -> ^Surface ---
 	GetGlyphMetrics :: proc(font: ^Font, ch: Uint32, minx: ^c.int, maxx: ^c.int, miny: ^c.int, maxy: ^c.int, advance: ^c.int) -> bool ---
@@ -237,7 +231,7 @@ foreign lib {
 	GetGPUTextDrawData :: proc(text: ^Text) -> ^GPUAtlasDrawSequence ---
 	DestroyGPUTextEngine :: proc(engine: ^TextEngine) ---
 	SetGPUTextEngineWinding :: proc(engine: ^TextEngine, winding: GPUTextEngineWinding) ---
-	GetGPUTextEngineWinding :: proc(engine: ^TextEngine) -> GPUTextEngineWinding ---
+	GetGPUTextEngineWinding :: proc(#by_ptr engine: TextEngine) -> GPUTextEngineWinding ---
 
 	CreateText :: proc(engine: ^TextEngine, font: ^Font, text: cstring, length: c.size_t) -> ^Text ---
 	GetTextProperties :: proc(text: ^Text) -> PropertiesID ---
@@ -268,8 +262,8 @@ foreign lib {
 	GetTextSubStringForLine :: proc(text: ^Text, line: c.int, substring: ^SubString) -> bool ---
 	GetTextSubStringsForRange :: proc(text: ^Text, offset: c.int, length: c.int, count: ^c.int) -> [^]^SubString ---
 	GetTextSubStringForPoint :: proc(text: ^Text, x: c.int, y: c.int, substring: ^SubString) -> bool ---
-	GetPreviousTextSubString :: proc(text: ^Text, substring: ^SubString, prvious: ^SubString) -> bool ---
-	GetNextTextSubString :: proc(text: ^Text, substring: ^SubString, next: ^SubString) -> bool ---
+	GetPreviousTextSubString :: proc(text: ^Text, #by_ptr substring: SubString, prvious: ^SubString) -> bool ---
+	GetNextTextSubString :: proc(text: ^Text, #by_ptr substring: SubString, next: ^SubString) -> bool ---
 	UpdateText :: proc(text: ^Text) -> bool ---
 	DestroyText :: proc(text: ^Text) ---
 
